@@ -27,7 +27,7 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
     $caseContribution->find();
     while ($caseContribution->fetch()) {
       $row = array();
-      self::storeValues($rule, $row);
+      self::storeValues($caseContribution, $row);
       $result[$row['id']] = $row;
     }
     return $result;
