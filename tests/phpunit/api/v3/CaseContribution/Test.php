@@ -54,10 +54,17 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
       'last_name' => 'Johnson',
       'contact_type' => 'Individual',
     ));
+    $creator = civicrm_api3('Contact', 'create', array(
+      'first_name' => 'Pete',
+      'last_name' => 'Peterson',
+      'contact_type' => 'Individual',
+    ));
     $this->assertArrayHasKey('id', $client, 'Could not create client');
+    $this->assertArrayHasKey('id', $creator, 'Could not create creator');
 
     $case1Params['case_type_id'] = 1; //Assuming housing support
     $case1Params['contact_id'] = $client['id'];
+    $case1Params['creator_id'] = $creator['id'];
     $case1Params['subject'] = 'Case Contribution API Unit Test 1';
     $case1 = civicrm_api3('Case', 'create', $case1Params);
 
