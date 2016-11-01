@@ -69,6 +69,7 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
    * @return object
    */
   public static function add($params) {
+    $result = array();
     if (isset($params['id'])) {
       CRM_Utils_Hook::pre('edit', 'CaseContribution', $params['id'], $params);
     }
@@ -93,7 +94,8 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
       CRM_Utils_Hook::post('create', 'CaseContribution', $caseContribution->id, $caseContribution);
     }
 
-    return $caseContribution;
+    self::storeValues($caseContribution, $result);
+    return $result;
   }
 
 }
