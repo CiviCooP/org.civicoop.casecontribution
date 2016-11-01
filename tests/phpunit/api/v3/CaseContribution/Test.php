@@ -27,10 +27,12 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
   }
 
   public function setUp() {
+    CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_case_contribution`");
     parent::setUp();
   }
 
   public function tearDown() {
+    CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_case_contribution`");
     parent::tearDown();
   }
 
@@ -127,7 +129,7 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
     $this->assertArrayHasKey('count', $caseContributions, 'Count is not set');
     $this->assertEquals(2, $caseContributions['count'], 'Count is invalid');
 
-    civicrm_api3('CaseContribution', 'delete', array('case_id' => $case1['id'], 'contribution_id' => $caseContribution1['id']));
+    civicrm_api3('CaseContribution', 'delete', array('case_id' => $case1['id'], 'contribution_id' => $contribution1['id']));
 
     $caseContributions = civicrm_api3('CaseContribution', 'get', array('case_id' => $case1['id']));
     $this->assertArrayHasKey('count', $caseContributions, 'Count is not set');

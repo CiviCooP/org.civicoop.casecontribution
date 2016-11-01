@@ -9,6 +9,7 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_case_contribution_Delete_spec(&$spec) {
+  $spec['id']['api.required'] = 0;
   $spec['contribution_id']['api.required'] = 1;
   $spec['case_id']['api.required'] = 1;
 }
