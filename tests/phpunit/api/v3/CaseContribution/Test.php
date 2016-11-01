@@ -1,31 +1,38 @@
 <?php
 
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
+use Civi\Test\EndToEndInterface;
 
 /**
- * FIXME - Add test description.
+ * Test for the CaseContribution API get, create and delete actions.
  *
  * Tips:
- *  - With HookInterface, you may implement CiviCRM hooks directly in the test class.
- *    Simply create corresponding functions (e.g. "hook_civicrm_post(...)" or similar).
- *  - With TransactionalInterface, any data changes made by setUp() or test****() functions will
- *    rollback automatically -- as long as you don't manipulate schema or truncate tables.
- *    If this test needs to manipulate schema or truncate tables, then either:
- *       a. Do all that using setupHeadless() and Civi\Test.
- *       b. Disable TransactionalInterface, and handle all setup/teardown yourself.
+ *  - The global variable $_CV has some properties which may be useful, such as:
+ *    CMS_URL, ADMIN_USER, ADMIN_PASS, ADMIN_EMAIL, DEMO_USER, DEMO_PASS, DEMO_EMAIL.
+ *  - To spawn a new CiviCRM thread and execute an API call or PHP code, use cv(), e.g.
+ *      cv('api system.flush');
+ *      $data = cv('eval "return Civi::settings()->get(\'foobar\')"');
+ *      $dashboardUrl = cv('url civicrm/dashboard');
+ *  - This template uses the most generic base-class, but you may want to use a more
+ *    powerful base class, such as \PHPUnit_Extensions_SeleniumTestCase or
+ *    \PHPUnit_Extensions_Selenium2TestCase.
+ *    See also: https://phpunit.de/manual/4.8/en/selenium.html
  *
- * @group headless
+ * @group e2e
+ * @see cv
  */
-class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implements EndToEndInterface {
 
-  public function setUpHeadless() {
-    // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
+  public static function setUpBeforeClass() {
     // See: https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
-    return \Civi\Test::headless()
-      ->installMe(__DIR__)
-      ->apply();
+
+    // Example: Install this extension. Don't care about anything else.
+    \Civi\Test::e2e()->installMe('org.civicoop.casecontribution')->apply();
+
+    // Example: Uninstall all extensions except this one.
+    // \Civi\Test::e2e()->uninstall('*')->installMe(__DIR__)->apply();
+
+    // Example: Install only core civicrm extensions.
+    // \Civi\Test::e2e()->uninstall('*')->install('org.civicrm.*')->apply();
   }
 
   public function setUp() {
@@ -60,16 +67,19 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
       'contact_type' => 'Individual',
     ));
     $this->assertArrayHasKey('id', $client, 'Could not create client');
+    $this->assertNotEmpty($client['id'], 'could not create client');
     $this->assertArrayHasKey('id', $creator, 'Could not create creator');
+    $this->assertNotEmpty($creator['id'], 'could not create creator');
 
-    $case1Params['case_type_id'] = 1; //Assuming housing support
+    $case1Params['case_type'] = 'housing_support';
     $case1Params['contact_id'] = $client['id'];
     $case1Params['creator_id'] = $creator['id'];
-    $case1Params['subject'] = 'Case Contribution API Unit Test 1';
+    $case1Params['subject'] = 'test';
     $case1 = civicrm_api3('Case', 'create', $case1Params);
 
-    $case2Params['case_type_id'] = 1; //Assuming housing support
+    $case2Params['case_type'] = 'housing_support';
     $case2Params['contact_id'] = $client['id'];
+    $case2Params['creator_id'] = $creator['id'];
     $case2Params['subject'] = 'Case Contribution API Unit Test 2';
     $case2 = civicrm_api3('Case', 'create', $case2Params);
 
@@ -164,3 +174,4 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
   }
 
 }
+
