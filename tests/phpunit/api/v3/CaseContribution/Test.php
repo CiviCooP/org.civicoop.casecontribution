@@ -23,7 +23,7 @@ use Civi\Test\EndToEndInterface;
 class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implements EndToEndInterface {
 
   public static function setUpBeforeClass() {
-    \Civi\Test::e2e()->installMe('org.civicoop.casecontribution')->apply();
+    \Civi\Test::e2e()->install('org.civicoop.casecontribution')->apply();
   }
 
   public function setUp() {
@@ -107,7 +107,7 @@ class api_v3_CaseContribution_Test extends \PHPUnit_Framework_TestCase implement
 
     $caseContribution1Params['case_id'] = $case1['id'];
     $caseContribution1Params['contribution_id'] = $contribution1['id'];
-    $caseContribution1 = civicrm_api3('CaseContribution', 'create', $caseContribution1Params);
+    $caseContribution1 = civicrm_api3('CaseContribution', 'Create', $caseContribution1Params);
 
     $caseContribution2Params['case_id'] = $case1['id'];
     $caseContribution2Params['contribution_id'] = $contribution2['id'];
