@@ -29,7 +29,7 @@ class CRM_Casecontribution_DAO_CaseContribution extends CRM_Core_DAO {
   static function getReferenceColumns() {
     if (!self::$_links) {
       self::$_links = static ::createReferenceColumns(__CLASS__);
-      self::$_links[] = new CRM_Core_Reference_Basic(self::getTableName() , 'entity_id', 'civicrm_contribution', 'id');
+      self::$_links[] = new CRM_Core_Reference_Basic(self::getTableName() , 'contribution_id', 'civicrm_contribution', 'id');
       self::$_links[] = new CRM_Core_Reference_Basic(self::getTableName() , 'case_id', 'civicrm_case', 'id');
     }
     return self::$_links;
@@ -44,13 +44,8 @@ class CRM_Casecontribution_DAO_CaseContribution extends CRM_Core_DAO {
   static function &fields() {
     if (!(self::$_fields)) {
       self::$_fields = array(
-        'id' => array(
-          'name' => 'id',
-          'type' => CRM_Utils_Type::T_INT,
-          'required' => true
-        ) ,
-        'entity_id' => array(
-          'name' => 'entity_id',
+        'contribution_id' => array(
+          'name' => 'contribution_id',
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Contribution') ,
           'description' => 'FK to contribution table.',
@@ -78,8 +73,7 @@ class CRM_Casecontribution_DAO_CaseContribution extends CRM_Core_DAO {
   static function &fieldKeys() {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
-        'id' => 'id',
-        'entity_id' => 'entity_id',
+        'contribution_id' => 'contribution_id',
         'case_id' => 'case_id',
       );
     }

@@ -29,10 +29,8 @@ function civicrm_api3_case_contribution_Create($params) {
   if (empty($params['case_id'])) {
     return civicrm_api3_create_error('case_id is not set');
   }
-  $params['entity_id'] = $params['contribution_id'];
-  unset($params['contribution_id']);
   $result = CRM_Casecontribution_BAO_CaseContribution::add($params);
-  $returnValues[$result['id']] = $result;
+  $returnValues[$result['contribution_id']] = $result;
   return civicrm_api3_create_success($returnValues, $params, 'CaseContribution', 'Create');
 }
 

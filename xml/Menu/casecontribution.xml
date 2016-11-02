@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<menu>
+    <item>
+        <path>civicrm/casecontribution/fileoncase</path>
+        <title>File on Case</title>
+        <desc>File a contribution on a case</desc>
+        <page_callback>CRM_Casecontribution_Form_AddToCase</page_callback>
+        <access_arguments>edit contributions</access_arguments>
+    </item>
+</menu>

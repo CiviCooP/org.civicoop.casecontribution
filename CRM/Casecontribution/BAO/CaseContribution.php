@@ -28,7 +28,7 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
     while ($caseContribution->fetch()) {
       $row = array();
       self::storeValues($caseContribution, $row);
-      $result[$row['id']] = $row;
+      $result[$row['contribution_id']] = $row;
     }
     return $result;
   }
@@ -51,11 +51,11 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
       Throw new Exception('Link between contribution '.$contribution_id.' and case '.$case_id.' not found');
     }
 
-    CRM_Utils_Hook::pre('delete', 'CaseContribution', $caseContribution->id, CRM_Core_DAO::$_nullArray);
+    CRM_Utils_Hook::pre('delete', 'CaseContribution', $caseContribution->contribution_id, CRM_Core_DAO::$_nullArray);
 
     $caseContribution->delete();
 
-    CRM_Utils_Hook::post('delete', 'CaseContribution', $caseContribution->id, CRM_Core_DAO::$_nullArray);
+    CRM_Utils_Hook::post('delete', 'CaseContribution', $caseContribution->contribution_id, CRM_Core_DAO::$_nullArray);
 
     return;
   }
@@ -70,28 +70,27 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
    */
   public static function add($params) {
     $result = array();
-    if (isset($params['id'])) {
-      CRM_Utils_Hook::pre('edit', 'CaseContribution', $params['id'], $params);
+    if (isset($params['contribution_id'])) {
+      CRM_Utils_Hook::pre('edit', 'CaseContribution', $params['contribution_id'], $params);
     }
     else {
       CRM_Utils_Hook::pre('create', 'CaseContribution', NULL, $params);
     }
 
     $caseContribution = new CRM_Casecontribution_BAO_CaseContribution();
-    $caseContribution->copyValues($params);
-    if (isset($params['id'])) {
-      $caseContribution->id = CRM_Utils_Array::value('id', $params);
-    }
-    else {
+    if (isset($params['contribution_id'])) {
+      $caseContribution->contribution_id = $params['contribution_id'];
       $caseContribution->find(TRUE);
     }
+    $caseContribution->contribution_id = $params['contribution_id'];
+    $caseContribution->case_id = $params['case_id'];
     $caseContribution->save();
 
     if (isset($params['id'])) {
-      CRM_Utils_Hook::post('edit', 'CaseContribution', $caseContribution->id, $caseContribution);
+      CRM_Utils_Hook::post('edit', 'CaseContribution', $caseContribution->contribution_id, $caseContribution);
     }
     else {
-      CRM_Utils_Hook::post('create', 'CaseContribution', $caseContribution->id, $caseContribution);
+      CRM_Utils_Hook::post('create', 'CaseContribution', $caseContribution->contribution_id, $caseContribution);
     }
 
     self::storeValues($caseContribution, $result);

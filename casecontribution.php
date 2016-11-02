@@ -2,6 +2,52 @@
 
 require_once 'casecontribution.civix.php';
 
+function casecontribution_civicrm_caseSummary($caseId) {
+  // Add a list of contributions to the manage case screen.
+  $contributionsTab = new CRM_Casecontribution_Page_CaseTab($caseId);
+  $content['casecontributions_contributions']['value'] = $contributionsTab->run();
+  return $content;
+}
+
+function casecontribution_civicrm_buildForm($formName, &$form) {
+  if ($form instanceof CRM_Contribute_Form_Contribution) {
+    // Hide the custom field for case_id
+    $config = CRM_Casecontribution_Config::singleton();
+    $viewCustomData = $form->get_template_vars('groupTree');
+    unset($viewCustomData[$config->getCaseContributionCustomGroup('id')]);
+    $form->assign_by_ref('groupTree', $viewCustomData);
+  }
+  if ($form instanceof CRM_Contribute_Form_ContributionView) {
+    // Hide the custom field for case_id
+    $config = CRM_Casecontribution_Config::singleton();
+    $viewCustomData = $form->get_template_vars('viewCustomData');
+    unset($viewCustomData[$config->getCaseContributionCustomGroup('id')]);
+    $form->assign_by_ref('viewCustomData', $viewCustomData);
+  }
+}
+
+function casecontribution_civicrm_links($op, $objectName, &$objectId, &$links, &$mask = NULL, &$values = array()) {
+  if ($objectName == 'Contribution' && CRM_Core_Permission::check('edit contributions') && CRM_Case_BAO_Case::accessCiviCase()) {
+    $isFiled = false;
+    try {
+      $caseContribution = civicrm_api3('CaseContribution', 'getsingle', array('contribution_id' => $objectId));
+      if (!empty($caseContribution['case_id'])) {
+        $isFiled = true;
+      }
+    } catch (Exception $e) {
+       // Do nothing
+    }
+    if (!$isFiled) {
+      $links[] = array(
+        'name' => 'File on case',
+        'url' => 'civicrm/casecontribution/fileoncase',
+        'qs' => 'reset=1&action=add&id=%%id%%&cid=%%cid%%&context=%%cxt%%',
+        'title' => ts('File on case'),
+      );
+    }
+  }
+}
+
 /**
  * Implements hook_civicrm_config().
  *
