@@ -9,23 +9,6 @@ function casecontribution_civicrm_caseSummary($caseId) {
   return $content;
 }
 
-function casecontribution_civicrm_buildForm($formName, &$form) {
-  if ($form instanceof CRM_Contribute_Form_Contribution) {
-    // Hide the custom field for case_id
-    $config = CRM_Casecontribution_Config::singleton();
-    $viewCustomData = $form->get_template_vars('groupTree');
-    unset($viewCustomData[$config->getCaseContributionCustomGroup('id')]);
-    $form->assign_by_ref('groupTree', $viewCustomData);
-  }
-  if ($form instanceof CRM_Contribute_Form_ContributionView) {
-    // Hide the custom field for case_id
-    $config = CRM_Casecontribution_Config::singleton();
-    $viewCustomData = $form->get_template_vars('viewCustomData');
-    unset($viewCustomData[$config->getCaseContributionCustomGroup('id')]);
-    $form->assign_by_ref('viewCustomData', $viewCustomData);
-  }
-}
-
 function casecontribution_civicrm_links($op, $objectName, &$objectId, &$links, &$mask = NULL, &$values = array()) {
   if ($objectName == 'Contribution' && CRM_Core_Permission::check('edit contributions') && CRM_Case_BAO_Case::accessCiviCase()) {
     $isFiled = false;

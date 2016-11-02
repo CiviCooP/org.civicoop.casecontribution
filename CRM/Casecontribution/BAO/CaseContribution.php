@@ -86,7 +86,7 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
     $caseContribution->case_id = $params['case_id'];
     $caseContribution->save();
 
-    if (isset($params['id'])) {
+    if (isset($params['contribution_id'])) {
       CRM_Utils_Hook::post('edit', 'CaseContribution', $caseContribution->contribution_id, $caseContribution);
     }
     else {
