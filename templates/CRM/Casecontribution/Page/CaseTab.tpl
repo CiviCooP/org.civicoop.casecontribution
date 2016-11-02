@@ -34,8 +34,7 @@
                             {$row.cancel_date|crmDate}
                         {/if}
                     </td>
-                    <td>
-                    </td>
+                    <td>{$row.action|replace:'xx':$row.contribution_id}</td>
                 </tr>
             {/foreach}
             </tbody>

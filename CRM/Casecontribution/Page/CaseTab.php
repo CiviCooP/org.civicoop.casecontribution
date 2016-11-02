@@ -16,8 +16,42 @@ class CRM_Casecontribution_Page_CaseTab {
     $caseContributions = civicrm_api3('CaseContribution', 'get', array('case_id' => $this->caseId));
     $template = CRM_Core_Smarty::singleton();
     $contributions = array();
+    $qfKey = CRM_Utils_Request::retrieve('key', 'String', CRM_Core_DAO::$_nullObject);
+
+    $permissions = array(CRM_Core_Permission::VIEW);
+    if (CRM_Core_Permission::check('edit contributions')) {
+      $permissions[] = CRM_Core_Permission::EDIT;
+    }
+    if (CRM_Core_Permission::check('delete in CiviContribute')) {
+      $permissions[] = CRM_Core_Permission::DELETE;
+    }
+    $mask = CRM_Core_Action::mask($permissions);
+
     foreach($caseContributions['values'] as $caseContribution) {
-      $contributions[] = civicrm_api3('Contribution', 'getsingle', array('id' => $caseContribution['entity_id']));
+      $contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $caseContribution['contribution_id']));
+
+      $actions = array(
+        'id' => $contribution['id'],
+        'cid' => $contribution['contact_id'],
+        'cxt' => '',
+      );
+
+      $contribution['action'] = CRM_Core_Action::formLink(
+        CRM_Contribute_Selector_Search::links($this->caseId,
+          CRM_Core_Action::VIEW,
+          $qfKey,
+          'case'
+        ),
+        $mask, $actions,
+        ts('more'),
+        FALSE,
+        'contribution.selector.row',
+        'Contribution',
+        $contribution['id']
+      );
+
+      $contributions[] = $contribution;
+
     }
     $template->assign('contributions', $contributions);
     return $template->fetch('CRM/Casecontribution/Page/CaseTab.tpl');
