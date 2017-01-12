@@ -31,6 +31,23 @@ function casecontribution_civicrm_links($op, $objectName, &$objectId, &$links, &
   }
 }
 
+function casecontribution_civicrm_buildForm($formName, &$form) {
+  if ($form instanceof CRM_Contribute_Form_Contribution && CRM_Utils_Request::retrieve('case_id', 'Integer')) {
+    $form->add('hidden', 'case_id', CRM_Utils_Request::retrieve('case_id', 'Integer'));
+  }
+}
+
+function casecontribution_civicrm_postProcess($formName, &$form) {
+  if ($form instanceof  CRM_Contribute_Form_Contribution && CRM_Utils_Request::retrieve('case_id', 'Integer') && $form->getVar('_action') == CRM_Core_Action::ADD) {
+    $contribution_id = $form->getVar('_id');
+    $case_id = CRM_Utils_Request::retrieve('case_id', 'Integer');
+    civicrm_api3('CaseContribution', 'create', array(
+      'case_id' => $case_id,
+      'contribution_id' => $contribution_id
+    ));
+  }
+}
+
 /**
  * Implements hook_civicrm_config().
  *

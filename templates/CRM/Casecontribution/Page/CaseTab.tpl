@@ -1,6 +1,14 @@
 <div id="case-casecontribution-contributions" class="crm-accordion-wrapper collapsed">
-    <div class="crm-accordion-header">{ts}Related contributions{/ts}</div>
+    <div class="crm-accordion-header">{ts}Related contributions{/ts} ({$contributionsCount})</div>
+
     <div class="crm-accordion-body">
+        {if $allowed_to_add_contribution}
+            {capture assign=newContribURL}{crmURL p="civicrm/contact/view/contribution" q="reset=1&action=add&cid=`$contact_id`&context=contribution&case_id=`$case_id`"}{/capture}
+            <div class="action-link">
+                <a accesskey="N" href="{$newContribURL}" class="button"><span><div class="icon ui-icon-circle-plus"></div>{ts}Record Contribution (Check, Cash, EFT ...){/ts}</span></a>
+                <br /><br />
+            </div>
+        {/if}
         <table>
             <thead>
             <tr>

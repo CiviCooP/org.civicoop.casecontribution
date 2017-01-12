@@ -13,6 +13,7 @@ class CRM_Casecontribution_Page_CaseTab {
   }
 
   public function run() {
+    $case = civicrm_api3('Case', 'getsingle', array('id' => $this->caseId));
     $caseContributions = civicrm_api3('CaseContribution', 'get', array('case_id' => $this->caseId));
     $template = CRM_Core_Smarty::singleton();
     $contributions = array();
@@ -21,6 +22,7 @@ class CRM_Casecontribution_Page_CaseTab {
     $permissions = array(CRM_Core_Permission::VIEW);
     if (CRM_Core_Permission::check('edit contributions')) {
       $permissions[] = CRM_Core_Permission::EDIT;
+      $template->assign('allowed_to_add_contribution', true);
     }
     if (CRM_Core_Permission::check('delete in CiviContribute')) {
       $permissions[] = CRM_Core_Permission::DELETE;
@@ -53,6 +55,9 @@ class CRM_Casecontribution_Page_CaseTab {
       $contributions[] = $contribution;
 
     }
+    $template->assign('case_id', $this->caseId);
+    $template->assign('contact_id', reset($case['client_id']));
+    $template->assign('contributionsCount', count($contributions));
     $template->assign('contributions', $contributions);
     return $template->fetch('CRM/Casecontribution/Page/CaseTab.tpl');
   }
