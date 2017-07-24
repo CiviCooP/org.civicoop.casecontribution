@@ -59,7 +59,10 @@ class CRM_Casecontribution_Page_CaseTab {
     $template->assign('contact_id', reset($case['client_id']));
     $template->assign('contributionsCount', count($contributions));
     $template->assign('contributions', $contributions);
-    return $template->fetch('CRM/Casecontribution/Page/CaseTab.tpl');
+
+    $tplName = 'CRM/Casecontribution/Page/CaseTab.tpl';
+    CRM_Utils_Hook::alterTemplateFile('CRM_Casecontribution_Page_CaseTab', $this, 'page', $tplName);
+    return $template->fetch($tplName);
   }
 
 }
