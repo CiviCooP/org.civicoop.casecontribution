@@ -11,6 +11,10 @@ class CRM_Casecontribution_Page_CaseTab {
   public function __construct($caseId) {
     $this->caseId = $caseId;
   }
+	
+	public function getCaseId() {
+		return $this->caseId;
+	}
 
   public function run() {
     $case = civicrm_api3('Case', 'getsingle', array('id' => $this->caseId));
