@@ -1,5 +1,5 @@
 <div id="case-casecontribution-contributions" class="crm-accordion-wrapper collapsed">
-    <div class="crm-accordion-header">{ts}Related contributions{/ts} ({$contributionsCount})</div>
+    <div class="crm-accordion-header">{ts domain='org.civicoop.casecontribution'}Related contributions{/ts} ({$contributionsCount})</div>
 
     <div class="crm-accordion-body">
         {if $allowed_to_add_contribution}

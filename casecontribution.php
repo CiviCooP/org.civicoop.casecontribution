@@ -48,6 +48,12 @@ function casecontribution_civicrm_postProcess($formName, &$form) {
   }
 }
 
+function casecontribution_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+	if ($objectName == 'Contribution' && $op == 'delete') {
+		CRM_Casecontribution_BAO_CaseContribution::deleteContribution($objectId);
+	}
+}
+
 /**
  * Implements hook_civicrm_config().
  *

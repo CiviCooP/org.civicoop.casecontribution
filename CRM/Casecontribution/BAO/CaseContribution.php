@@ -32,6 +32,31 @@ class CRM_Casecontribution_BAO_CaseContribution extends CRM_Casecontribution_DAO
     }
     return $result;
   }
+	
+	/**
+   * Function to delete a link between a contribution and a case
+   *
+   * @param int $contribution_id
+   * @param int $case_id
+   * @access public
+   * @throws Exception when link between contribution and case could not be found
+   * @static
+   */
+  public static function deleteContribution($contribution_id) {
+
+    $caseContribution = new CRM_Casecontribution_BAO_CaseContribution();
+    $caseContribution->contribution_id = $contribution_id;
+    while($caseContribution->find(TRUE)) {
+    	CRM_Utils_Hook::pre('delete', 'CaseContribution', $caseContribution->contribution_id, CRM_Core_DAO::$_nullArray);
+    	$caseContribution->delete();
+    	CRM_Utils_Hook::post('delete', 'CaseContribution', $caseContribution->contribution_id, CRM_Core_DAO::$_nullArray);
+			
+			$caseContribution = new CRM_Casecontribution_BAO_CaseContribution();
+    	$caseContribution->contribution_id = $contribution_id;
+		}
+
+    return;
+  }
 
   /**
    * Function to delete a link between a contribution and a case

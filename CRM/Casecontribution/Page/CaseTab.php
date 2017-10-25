@@ -30,29 +30,33 @@ class CRM_Casecontribution_Page_CaseTab {
     $mask = CRM_Core_Action::mask($permissions);
 
     foreach($caseContributions['values'] as $caseContribution) {
-      $contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $caseContribution['contribution_id']));
-
-      $actions = array(
-        'id' => $contribution['id'],
-        'cid' => $contribution['contact_id'],
-        'cxt' => '',
-      );
-
-      $contribution['action'] = CRM_Core_Action::formLink(
-        CRM_Contribute_Selector_Search::links($this->caseId,
-          CRM_Core_Action::VIEW,
-          $qfKey,
-          'case'
-        ),
-        $mask, $actions,
-        ts('more'),
-        FALSE,
-        'contribution.selector.row',
-        'Contribution',
-        $contribution['id']
-      );
-
-      $contributions[] = $contribution;
+    	try {
+      	$contribution = civicrm_api3('Contribution', 'getsingle', array('id' => $caseContribution['contribution_id']));
+			
+	      $actions = array(
+	        'id' => $contribution['id'],
+	        'cid' => $contribution['contact_id'],
+	        'cxt' => '',
+	      );
+	
+	      $contribution['action'] = CRM_Core_Action::formLink(
+	        CRM_Contribute_Selector_Search::links($this->caseId,
+	          CRM_Core_Action::VIEW,
+	          $qfKey,
+	          'case'
+	        ),
+	        $mask, $actions,
+	        ts('more'),
+	        FALSE,
+	        'contribution.selector.row',
+	        'Contribution',
+	        $contribution['id']
+	      );
+	
+	      $contributions[] = $contribution;
+			} catch (Exception $e) {
+				// Do nothing
+			}
 
     }
     $template->assign('case_id', $this->caseId);
