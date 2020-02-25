@@ -6,9 +6,9 @@
 
 class CRM_Casecontribution_Form_AddToCase extends CRM_Core_Form {
 
-  private $contributionId;
+  private $_contributionId;
 
-  private $currentCaseId;
+  private $_currentCaseId;
 
   /**
    * Build all the data structures needed to build the form.
@@ -16,13 +16,13 @@ class CRM_Casecontribution_Form_AddToCase extends CRM_Core_Form {
    * @return void
    */
   public function preProcess() {
-    $this->contributionId = CRM_Utils_Request::retrieve('id', 'Positive', CRM_Core_DAO::$_nullObject);
-    if (!$this->contributionId) {
+    $this->_contributionId = CRM_Utils_Request::retrieve('id', 'Positive');
+    if (!$this->_contributionId) {
       CRM_Core_Error::fatal('required contribution id is missing.');
     }
 
-    $this->currentCaseId = CRM_Utils_Request::retrieve('caseId', 'Positive', CRM_Core_DAO::$_nullObject);
-    $this->assign('currentCaseId', $this->currentCaseId);
+    $this->_currentCaseId = CRM_Utils_Request::retrieve('caseId', 'Positive');
+    $this->assign('currentCaseId', $this->_currentCaseId);
   }
 
   /**
@@ -31,20 +31,34 @@ class CRM_Casecontribution_Form_AddToCase extends CRM_Core_Form {
    * @return void
    */
   public function buildQuickForm() {
-    $this->add('text', 'file_on_case_unclosed_case_id', ts('Select Case'), array('class' => 'huge'), TRUE);
+    $this->addEntityRef('file_on_case_unclosed_case_id', ts('Select Case'), [
+      'entity' => 'Case',
+      'select' => ['minimumInputLength' => 0],
+      'api' => [
+        'extra' => ['contact_id'],
+        'params' => [
+          'case_id' => ['!=' => $this->_currentCaseId],
+          'case_id.is_deleted' => 0,
+          'case_id.status_id' => ['!=' => 'Closed'],
+          'case_id.end_date' => ['IS NULL' => 1],
+        ],
+      ],
+    ], TRUE);
 
-    $this->addButtons(array(
-        array(
-          'type' => 'upload',
-          'name' => ts('Save'),
-          'isDefault' => TRUE,
-        ),
-        array(
-          'type' => 'cancel',
-          'name' => ts('Cancel'),
-        ),
-      )
-    );
+    $this->addElement('hidden', 'id', $this->_contributionId);
+    $this->addElement('hidden', 'caseId', $this->_currentCaseId);
+
+    $this->addButtons([
+      [
+        'type' => 'upload',
+        'name' => ts('Save'),
+        'isDefault' => TRUE,
+      ],
+      [
+        'type' => 'cancel',
+        'name' => ts('Cancel'),
+      ],
+    ]);
   }
 
   /**
@@ -55,24 +69,38 @@ class CRM_Casecontribution_Form_AddToCase extends CRM_Core_Form {
    * @return array
    */
   public function setDefaultValues() {
-    $defaults = array();
-    $contribution = array();
-    $params = array('id' => $this->contributionId);
-    CRM_Contribute_BAO_Contribution::retrieve($params, $contribution);
-    //$defaults['file_on_case_target_contact_id'] = $defaults['target_contact'];
+    $defaults = [];
+    $contribution = [];
+    try {
+      $cid = civicrm_api3('Contribution', 'getvalue', [
+        'return' => 'contact_id',
+        'id' => $this->_contributionId,
+      ]);
+    }
+    catch (Exception $e) {
+      // no contact id found for contirbution
+      $cid = NULL;
+    }
 
-    // If this contact has an open case, supply it as a default
-    $cid = $contribution['contact_id'];
     if ($cid) {
-      $cases = CRM_Case_BAO_Case::getUnclosedCases(array('contact_id' => $cid), $this->currentCaseId);
-      foreach ($cases as $id => $details) {
-        $defaults['file_on_case_unclosed_case_id'] = $id;
-        $value = array(
-          'label' => $details['sort_name'] . ' - ' . $details['case_type'],
-          'extra' => array('contact_id' => $cid),
-        );
-        $this->updateElementAttr('file_on_case_unclosed_case_id', array('data-value' => json_encode($value)));
-        break;
+      $caseParams = [
+        'contact_id' => $cid,
+        'case_id.status_id' => ['!=' => "Closed"],
+        'case_id.is_deleted' => 0,
+        'case_id.end_date' => ['IS NULL' => 1],
+        'options' => ['limit' => 1],
+        'return' => 'case_id',
+      ];
+
+      if ($this->_currentCaseId) {
+        $caseParams['case_id'] = ['!=' => $this->_currentCaseId];
+      }
+
+      try {
+        $defaults['file_on_case_unclosed_case_id'] = civicrm_api3('CaseContact', 'getvalue', $caseParams);
+      }
+      catch (Exception $e) {
+        // No open cases for the contact.
       }
     }
 
@@ -80,7 +108,7 @@ class CRM_Casecontribution_Form_AddToCase extends CRM_Core_Form {
   }
 
   public function postProcess() {
-    $params['contribution_id'] = $this->contributionId;
+    $params['contribution_id'] = $this->_contributionId;
     $params['case_id'] = $this->_submitValues['file_on_case_unclosed_case_id'];
     civicrm_api3('CaseContribution', 'create', $params);
   }
