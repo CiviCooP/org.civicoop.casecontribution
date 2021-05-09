@@ -127,17 +127,19 @@ function casecontribution_civicrm_alterReportVar($varType, &$var, &$reportForm) 
       ];
     }
     if ($varType == 'sql') {
-      $from = $reportForm->getVar('_from');
-      $aliases = $reportForm->getVar('_aliases');
-      $from .= "
-        LEFT JOIN civicrm_case_contribution case_contribution
-          ON case_contribution.contribution_id = {$aliases['civicrm_contribution']}.id
-        LEFT JOIN civicrm_case {$aliases['civicrm_case']}
-          ON {$aliases['civicrm_case']}.id = case_contribution.case_id
-        LEFT JOIN civicrm_case_type {$aliases['civicrm_case_type']}
-          ON {$aliases['civicrm_case_type']}.id = {$aliases['civicrm_case']}.case_type_id
-      ";
-      $reportForm->setVar('_from', $from);
+      if ($reportForm->isTableSelected('civicrm_case') || $reportForm->isTableSelected('civicrm_case_type')) {
+        $from = $reportForm->getVar('_from');
+        $aliases = $reportForm->getVar('_aliases');
+        $from .= "
+          LEFT JOIN civicrm_case_contribution case_contribution
+            ON case_contribution.contribution_id = {$aliases['civicrm_contribution']}.id
+          LEFT JOIN civicrm_case {$aliases['civicrm_case']}
+            ON {$aliases['civicrm_case']}.id = case_contribution.case_id
+          LEFT JOIN civicrm_case_type {$aliases['civicrm_case_type']}
+            ON {$aliases['civicrm_case_type']}.id = {$aliases['civicrm_case']}.case_type_id
+        ";
+        $reportForm->setVar('_from', $from);
+      }
     }
   }
 }
