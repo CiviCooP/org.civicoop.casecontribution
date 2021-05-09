@@ -55,6 +55,94 @@ function casecontribution_civicrm_post($op, $objectName, $objectId, &$objectRef)
 }
 
 /**
+ * Implements hook_civicrm_alterReportVar().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_alterReportVar
+ */
+function casecontribution_civicrm_alterReportVar($varType, &$var, &$reportForm) {
+  if (is_a($reportForm, 'CRM_Report_Form_Contribute_Detail')) {
+    if ($varType == 'columns') {
+      $var['civicrm_case'] = [
+        'dao' => 'CRM_Case_DAO_Case',
+        'fields' => [
+          'case_id' => [
+            'title' => ts('Case ID'),
+            'name' => 'id',
+          ],
+          'case_subject' => [
+            'title' => ts('Case Subject'),
+            'name' => 'subject',
+          ],
+          'case_start_date' => [
+            'title' => ts('Case Start Date'),
+            'type' => CRM_Utils_Type::T_DATE,
+            'name' => 'start_date',
+          ],
+          'case_end_date' => [
+            'title' => ts('Case End Date'),
+            'type' => CRM_Utils_Type::T_DATE,
+            'name' => 'end_date',
+          ],
+          'case_status_id' => [
+            'title' => ts('Case Status'),
+            'name' => 'status_id',
+          ],
+        ],
+        'filters' => [
+          'case_start_date' => [
+            'name' => 'start_date',
+            'title' => ts('Case Start Date'),
+            'operatorType' => CRM_Report_Form::OP_DATE,
+            'type' => CRM_Utils_Type::T_DATE,
+          ],
+          'case_end_date' => [
+            'name' => 'end_date',
+            'title' => ts('Case End Date'),
+            'operatorType' => CRM_Report_Form::OP_DATE,
+            'type' => CRM_Utils_Type::T_DATE,
+          ],
+          'case_status_id' => [
+            'name' => 'status_id',
+            'title' => ts('Case Status'),
+            'type' => CRM_Utils_Type::T_INT,
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Case_BAO_Case::buildOptions('status_id', 'search'),
+          ],
+          'case_type_id' => [
+            'title' => ts('Case Type'),
+            'type' => CRM_Utils_Type::T_INT,
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            'options' => CRM_Case_BAO_Case::buildOptions('case_type_id', 'search'),
+          ],
+        ],
+      ];
+      $var['civicrm_case_type'] = [
+        'dao' => 'CRM_Case_DAO_Case',
+        'fields' => [
+          'case_type_title' => [
+            'title' => ts('Case Type'),
+            'name' => 'title',
+          ],
+        ],
+      ];
+    }
+    if ($varType == 'sql') {
+      $from = $reportForm->getVar('_from');
+      $aliases = $reportForm->getVar('_aliases');
+      $from .= "
+        LEFT JOIN civicrm_case_contribution case_contribution
+          ON case_contribution.contribution_id = {$aliases['civicrm_contribution']}.id
+        LEFT JOIN civicrm_case {$aliases['civicrm_case']}
+          ON {$aliases['civicrm_case']}.id = case_contribution.case_id
+        LEFT JOIN civicrm_case_type {$aliases['civicrm_case_type']}
+          ON {$aliases['civicrm_case_type']}.id = {$aliases['civicrm_case']}.case_type_id
+      ";
+      $reportForm->setVar('_from', $from);
+    }
+  }
+}
+
+/**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
@@ -175,33 +263,3 @@ _casecontribution_civix_civicrm_angularModules($angularModules);
 function casecontribution_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _casecontribution_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
-
-/**
- * Functions below this ship commented out. Uncomment as required.
- *
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function casecontribution_civicrm_preProcess($formName, &$form) {
-
-} // */
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function casecontribution_civicrm_navigationMenu(&$menu) {
-  _casecontribution_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'org.civicoop.casecontribution')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
-    'permission' => 'access CiviReport,access CiviContribute',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _casecontribution_civix_navigationMenu($menu);
-} // */
